@@ -1,5 +1,5 @@
-//go:build generate
-// +build generate
+//go:build gen
+// +build gen
 
 package main
 
@@ -90,5 +90,5 @@ func copyDirectory(distDir string) error {
 		return err
 	}
 	log.Println("Copied resources")
-	return
+	return nil
 }
