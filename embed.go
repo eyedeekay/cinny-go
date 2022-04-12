@@ -2,3 +2,5 @@
 // +build !generate
 
 package embed
+
+//go:embed www

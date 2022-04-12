@@ -17,14 +17,14 @@ import (
 )
 
 func main() {
-	if err := Generate("www"); err != nil {
+	if err := Generate("build"); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func Generate(dir string) error {
 	Dir, err := filepath.Abs(dir)
-	os.MkdirAll(Dir)
+	os.MkdirAll(Dir, 0755)
 	if err != nil {
 		fmt.Errorf("generate: Absolute directory determination failed for %s, %s", dir, err.Error())
 	}
@@ -85,6 +85,10 @@ func npmBuild(repoDir string) (string, error) {
 }
 
 func copyDirectory(distDir string) error {
-	log.Println("Copied")
-	return copy.Copy(distDir, "www/dist")
+	err := copy.Copy(distDir, "www")
+	if err != nil {
+		return err
+	}
+	log.Println("Copied resources")
+	return
 }
