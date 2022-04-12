@@ -5,9 +5,11 @@ package cinnygo
 
 import (
 	"embed"
-	"net"
+	"log"
 	"net/http"
+	"net/url"
 	"path/filepath"
+	"strings"
 
 	"path"
 )
@@ -18,7 +20,18 @@ import (
 var Content embed.FS
 
 type CinnyServer struct {
-	Listener net.Listener
+	HomeServer string
+}
+
+func (c *CinnyServer) Home(hostname string) string {
+	if c.HomeServer != "" {
+		_, err := url.Parse("http://" + c.HomeServer)
+		if err != nil {
+			return hostname
+		}
+		return c.HomeServer
+	}
+	return hostname
 }
 
 func (c *CinnyServer) ServeHTTP(rw http.ResponseWriter, rq *http.Request) {
@@ -27,31 +40,41 @@ func (c *CinnyServer) ServeHTTP(rw http.ResponseWriter, rq *http.Request) {
 		//write content-type header json
 		rw.Header().Add("Content-Type", "application/json")
 		rw.WriteHeader(200)
-		rw.Write([]byte(c.ConfigJSON()))
+		log.Println("URL:", rq.Host)
+		rw.Write([]byte(c.ConfigJSON(c.Home(rq.Host))))
+		return
 	}
 	contentPath := filepath.Join("www", cleanedPath)
 	if contentPath == "www" {
 		contentPath = filepath.Join("www", cleanedPath, "index.html")
 	}
 	// find the file in Content and if it exists, serve it. If not, 404
-	f, err := Content.Open(contentPath)
+	f, err := Content.ReadFile(contentPath)
 	if err != nil {
-		return
+		log.Println(err.Error())
 	}
-	bytes := []byte{}
-	_, err = f.Read(bytes)
-	if err != nil {
-		return
+	contentType := ""
+	if strings.HasSuffix(contentPath, ".js") {
+		contentType = "text/javascript"
+		rw.Header().Add("Content-Type", contentType)
+	} else if strings.HasSuffix(contentPath, ".css") {
+		contentType = "text/css"
+		rw.Header().Add("Content-Type", contentType)
+	} else {
+		contentType := http.DetectContentType(f)
+		rw.Header().Add("Content-Type", contentType)
 	}
-	rw.Write(bytes)
+	log.Println("Serving:", contentPath, contentType)
+	rw.Write(f)
 }
 
-func (c *CinnyServer) ConfigJSON() string {
-	configJson := "{"
-	configJson += "  \"defaultHomeserver\": 0"
-	configJson += "  \"homeserverList\": ["
-	configJson += "  \"" + c.Listener.Addr().String() + "\""
-	configJson += "  ]"
-	configJson += "}"
+func (c *CinnyServer) ConfigJSON(HomeServer string) string {
+	configJson := `
+	{
+		"defaultHomeserver": 0,
+		"homeserverList": [
+			"` + HomeServer + `"
+		]
+	}`
 	return configJson
 }
