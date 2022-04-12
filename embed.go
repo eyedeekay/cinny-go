@@ -36,12 +36,12 @@ func (c *CinnyServer) ServeHTTP(rw http.ResponseWriter, rq *http.Request) {
 	// find the file in Content and if it exists, serve it. If not, 404
 	f, err := Content.Open(contentPath)
 	if err != nil {
-		//panic(err)
+		return
 	}
 	bytes := []byte{}
 	_, err = f.Read(bytes)
 	if err != nil {
-		//panic(err)
+		return
 	}
 	rw.Write(bytes)
 }
