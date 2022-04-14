@@ -21,17 +21,22 @@ var Content embed.FS
 
 type CinnyServer struct {
 	HomeServer string
+	TLS        bool
 }
 
 func (c *CinnyServer) Home(hostname string) string {
+	scheme := "http://"
+	if c.TLS {
+		scheme = "https://"
+	}
 	if c.HomeServer != "" {
 		_, err := url.Parse("http://" + c.HomeServer)
 		if err != nil {
-			return hostname
+			return scheme + hostname
 		}
-		return c.HomeServer
+		return scheme + c.HomeServer
 	}
-	return hostname
+	return scheme + hostname
 }
 
 func (c *CinnyServer) ServeHTTP(rw http.ResponseWriter, rq *http.Request) {
