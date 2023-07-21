@@ -10,11 +10,12 @@ import (
 )
 
 var (
-	homeServer = flag.String("home", "", "Home server")
+	homeServer = flag.String("home", "jfbg4uhej6ahlyv5jjpnqi3tlunh4ozjkdq4khtt6ft467zcooka.b32.i2p", "Home server")
 	tls        = flag.Bool("tls", false, "TLS")
 )
 
 func main() {
+	flag.Parse()
 	garlic, err := onramp.NewGarlic("cinny-i2p", "127.0.0.1:7656", onramp.OPT_DEFAULTS)
 	if err != nil {
 		log.Fatal(err)
