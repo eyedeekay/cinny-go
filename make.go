@@ -80,8 +80,9 @@ func npmBuild(repoDir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Println("compilation complete")
-	return filepath.Join(repoDir, "dist"), nil
+	dd := filepath.Join(repoDir, "dist")
+	log.Println("compilation complete", dd)
+	return dd, nil
 }
 
 func copyDirectory(distDir string) error {
