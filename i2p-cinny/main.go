@@ -11,7 +11,7 @@ import (
 
 var (
 	homeServer = flag.String("home", "jfbg4uhej6ahlyv5jjpnqi3tlunh4ozjkdq4khtt6ft467zcooka.b32.i2p", "Home server")
-	tls        = flag.Bool("tls", false, "TLS")
+	tls        = flag.Bool("tls", true, "TLS")
 )
 
 func main() {
@@ -20,10 +20,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	l, err := garlic.Listen()
+	defer garlic.Close()
+	l, err := garlic.ListenTLS()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer l.Close()
 	cs := &cinnygo.CinnyServer{
 		HomeServer: *homeServer,
 		TLS:        *tls,
