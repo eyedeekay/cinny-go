@@ -16,7 +16,7 @@ var (
 
 func main() {
 	flag.Parse()
-	garlic, err := onramp.NewGarlic("cinny-i2p", "127.0.0.1:7656", onramp.OPT_DEFAULTS)
+	garlic, err := onramp.NewGarlic("cinny-i2p", "127.0.0.1:7656", onramp.OPT_WIDE)
 	if err != nil {
 		log.Fatal(err)
 	}
